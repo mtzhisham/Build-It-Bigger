@@ -3,9 +3,10 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0-beta1'
+        classpath 'com.android.tools.build:gradle:2.1.2'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -16,4 +17,40 @@ allprojects {
     repositories {
         jcenter()
     }
+}
+
+
+task endtest {
+    dependsOn(['startServer', 'runTest', 'shutDownServer'])
+
+
+
+     doLast {
+        println "Pass test"
+    }
+}
+
+//custom test tasks
+task startServer{
+
+    dependsOn  ":backend:appengineRun"
+    //evaluate backend first  and run the appengine in daemon mode
+    evaluationDependsOn(":backend")
+    project(':backend').appengine.daemon = true
+
+}
+
+task runTest{
+
+    dependsOn "app:connectedAndroidTest"
+    mustRunAfter startServer
+
+}
+
+
+task shutDownServer{
+
+    dependsOn "backend:appengineStop"
+    mustRunAfter runTest
+
 }
